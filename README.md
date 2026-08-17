@@ -17,7 +17,8 @@ Aplicativo mobile para centralizar coleção, descoberta de cartas, decks, merca
 - Área interna de cada TCG
 - Explorar cartas com busca e filtros
 - Detalhes de carta e ações de coleção/wishlist
-- Estrutura preparada para Mercado, Coleção, Deck Builder, Comunidade e Competitivo
+- Coleção navegável com valor estimado, busca, filtros, wishlist e estado vazio
+- Estrutura preparada para Mercado, Deck Builder, Comunidade e Competitivo
 
 ## Executar
 

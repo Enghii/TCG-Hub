@@ -1,0 +1,30 @@
+import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CardTile } from '@/src/components/CardTile';
+import { Pill, SearchInput } from '@/src/components/ui';
+import { cards, findTcg } from '@/src/data/catalog';
+import { useAppStore } from '@/src/store/AppStore';
+import { colors, spacing } from '@/src/theme';
+
+type Tab = 'collection' | 'wishlist';
+export default function CollectionScreen() {
+  const { tcgId } = useLocalSearchParams<{ tcgId: string }>();
+  const { collection, wishlist, region, language } = useAppStore();
+  const [tab, setTab] = useState<Tab>('collection'); const [query, setQuery] = useState(''); const [rarity, setRarity] = useState('Todas');
+  const tcg = findTcg(tcgId); const ids = tab === 'collection' ? collection : wishlist;
+  const ownedCards = cards.filter((card) => card.tcgId === tcgId && collection.includes(card.id));
+  const value = ownedCards.reduce((sum, card) => sum + (region === 'BR' ? card.priceBRL : card.priceUSD), 0);
+  const current = cards.filter((card) => card.tcgId === tcgId && ids.includes(card.id));
+  const rarities = ['Todas', ...new Set(current.map((card) => card.rarity))];
+  const filtered = useMemo(() => current.filter((card) => (rarity === 'Todas' || card.rarity === rarity) && `${card.name} ${card.set}`.toLowerCase().includes(query.toLowerCase())), [current, rarity, query]);
+  const money = region === 'BR' ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  return <SafeAreaView edges={['bottom']} style={styles.safe}><ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <Text style={styles.eyebrow}>{tcg?.name}</Text><Text style={styles.title}>{language === 'pt' ? 'Minha coleção' : 'My collection'}</Text>
+    <View style={styles.summary}><View><Text style={styles.summaryLabel}>{language === 'pt' ? 'Valor estimado' : 'Estimated value'}</Text><Text style={styles.value}>{money}</Text></View><View style={styles.total}><Text style={styles.totalNumber}>{ownedCards.length}</Text><Text style={styles.summaryLabel}>{language === 'pt' ? 'cartas' : 'cards'}</Text></View></View>
+    <View style={styles.tabs}><Pressable onPress={() => { setTab('collection'); setRarity('Todas'); }} style={[styles.tab, tab === 'collection' && styles.tabActive]}><Text style={[styles.tabText, tab === 'collection' && styles.tabTextActive]}>{language === 'pt' ? 'Coleção' : 'Collection'} ({ownedCards.length})</Text></Pressable><Pressable onPress={() => { setTab('wishlist'); setRarity('Todas'); }} style={[styles.tab, tab === 'wishlist' && styles.tabActive]}><Text style={[styles.tabText, tab === 'wishlist' && styles.tabTextActive]}>Wishlist ({wishlist.filter((id) => cards.some((card) => card.id === id && card.tcgId === tcgId)).length})</Text></Pressable></View>
+    {current.length > 0 ? <><SearchInput value={query} onChangeText={setQuery} placeholder={language === 'pt' ? 'Buscar nesta lista...' : 'Search this list...'} /><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>{rarities.map((item) => <Pill key={item} label={item} active={rarity === item} onPress={() => setRarity(item)} />)}</ScrollView><Text style={styles.count}>{filtered.length} {language === 'pt' ? 'resultado(s)' : 'result(s)'}</Text><View style={styles.grid}>{filtered.map((card) => <CardTile key={card.id} card={card} />)}</View></> : <View style={styles.empty}><Text style={styles.emptyIcon}>{tab === 'collection' ? '▣' : '♡'}</Text><Text style={styles.emptyTitle}>{language === 'pt' ? 'Nada por aqui ainda' : 'Nothing here yet'}</Text><Text style={styles.emptyText}>{language === 'pt' ? 'Explore o catálogo e adicione suas primeiras cartas.' : 'Explore the catalog and add your first cards.'}</Text><Pressable onPress={() => router.push({ pathname: '/explore', params: { tcgId } })} style={styles.exploreButton}><Text style={styles.exploreButtonText}>{language === 'pt' ? 'Explorar cartas' : 'Explore cards'}</Text></Pressable></View>}
+  </ScrollView></SafeAreaView>;
+}
+const styles = StyleSheet.create({ safe: { flex: 1, backgroundColor: colors.background }, container: { padding: spacing.lg, paddingBottom: 48 }, eyebrow: { color: colors.accent, fontWeight: '800' }, title: { color: colors.text, fontSize: 30, fontWeight: '900', marginTop: 4, marginBottom: spacing.lg }, summary: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 20, padding: spacing.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, summaryLabel: { color: colors.muted }, value: { color: colors.primary, fontSize: 26, fontWeight: '900', marginTop: 5 }, total: { alignItems: 'center' }, totalNumber: { color: colors.text, fontSize: 24, fontWeight: '900' }, tabs: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 15, padding: 4, marginVertical: spacing.lg }, tab: { flex: 1, alignItems: 'center', padding: 11, borderRadius: 11 }, tabActive: { backgroundColor: colors.surfaceAlt }, tabText: { color: colors.muted, fontWeight: '800' }, tabTextActive: { color: colors.text }, filters: { gap: 8, paddingVertical: spacing.md }, count: { color: colors.muted, marginBottom: spacing.md }, grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }, empty: { alignItems: 'center', paddingVertical: 54 }, emptyIcon: { color: colors.primary, fontSize: 54 }, emptyTitle: { color: colors.text, fontSize: 21, fontWeight: '900', marginTop: spacing.md }, emptyText: { color: colors.muted, textAlign: 'center', lineHeight: 21, marginTop: spacing.sm }, exploreButton: { backgroundColor: colors.primary, borderRadius: 14, paddingHorizontal: spacing.lg, paddingVertical: 13, marginTop: spacing.lg }, exploreButtonText: { color: colors.background, fontWeight: '900' } });
