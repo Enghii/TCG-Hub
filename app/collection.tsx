@@ -5,17 +5,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CardTile } from '@/src/components/CardTile';
 import { Pill, SearchInput } from '@/src/components/ui';
 import { cards, findTcg } from '@/src/data/catalog';
+import { getCachedCard } from '@/src/services/catalog';
 import { useAppStore } from '@/src/store/AppStore';
 import { colors, spacing } from '@/src/theme';
 
 type Tab = 'collection' | 'wishlist';
 export default function CollectionScreen() {
-  const { tcgId } = useLocalSearchParams<{ tcgId: string }>(); const { collection, wishlist, region, language } = useAppStore();
+  const { tcgId } = useLocalSearchParams<{ tcgId: string }>(); const { collection, wishlist, savedCards, region, language } = useAppStore();
   const [tab, setTab] = useState<Tab>('collection'); const [query, setQuery] = useState(''); const [condition, setCondition] = useState('Todas');
-  const tcg = findTcg(tcgId); const tcgItems = collection.filter((entry) => cards.some((card) => card.id === entry.cardId && card.tcgId === tcgId));
-  const totalCopies = tcgItems.reduce((sum, entry) => sum + entry.quantity, 0); const marketValue = tcgItems.reduce((sum, entry) => { const card = cards.find((item) => item.id === entry.cardId); return sum + (card ? (region === 'BR' ? card.priceBRL : card.priceUSD) * entry.quantity : 0); }, 0); const invested = tcgItems.reduce((sum, entry) => sum + (entry.purchasePrice ?? 0) * entry.quantity, 0);
-  const filteredEntries = useMemo(() => tcgItems.filter((entry) => { const card = cards.find((item) => item.id === entry.cardId); return card && (condition === 'Todas' || entry.condition === condition) && `${card.name} ${card.set} ${entry.language}`.toLowerCase().includes(query.toLowerCase()); }), [tcgItems, condition, query]);
-  const wishlistCards = cards.filter((card) => card.tcgId === tcgId && wishlist.includes(card.id) && `${card.name} ${card.set}`.toLowerCase().includes(query.toLowerCase()));
+  const resolveCard = (entry: typeof collection[number]) => getCachedCard(entry.cardId) ?? entry.cardSnapshot; const tcg = findTcg(tcgId); const tcgItems = collection.filter((entry) => resolveCard(entry)?.tcgId === tcgId);
+  const totalCopies = tcgItems.reduce((sum, entry) => sum + entry.quantity, 0); const marketValue = tcgItems.reduce((sum, entry) => { const card = resolveCard(entry); return sum + (card ? (region === 'BR' ? card.priceBRL : card.priceUSD) * entry.quantity : 0); }, 0); const invested = tcgItems.reduce((sum, entry) => sum + (entry.purchasePrice ?? 0) * entry.quantity, 0);
+  const filteredEntries = useMemo(() => tcgItems.filter((entry) => { const card = resolveCard(entry); return card && (condition === 'Todas' || entry.condition === condition) && `${card.name} ${card.set} ${entry.language}`.toLowerCase().includes(query.toLowerCase()); }), [tcgItems, condition, query]);
+  const wishlistCards = [...cards, ...savedCards.filter((saved) => !cards.some((card) => card.id === saved.id))].filter((card) => card.tcgId === tcgId && wishlist.includes(card.id) && `${card.name} ${card.set}`.toLowerCase().includes(query.toLowerCase()));
   const money = (value: number) => region === 'BR' ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   return <SafeAreaView edges={['bottom']} style={styles.safe}><ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
     <Text style={styles.eyebrow}>{tcg?.name}</Text><Text style={styles.title}>{language === 'pt' ? 'Minha coleção' : 'My collection'}</Text>
