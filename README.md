@@ -21,6 +21,7 @@ Aplicativo mobile para centralizar coleção, descoberta de cartas, decks, merca
 - Resumo de valor estimado e investido, busca, filtros, wishlist e migração dos dados anteriores
 - Catálogo online de Magic via Scryfall e Pokémon via Pokémon TCG API
 - Adaptador seguro preparado para o catálogo oficial de Riftbound via servidor do TCG Hub
+- Conta por e-mail, modo visitante, backup/restauração e sincronização automática via Supabase
 - Estrutura preparada para Mercado, Deck Builder, Comunidade e Competitivo
 
 ## Executar
@@ -50,3 +51,15 @@ O aplicativo consulta Scryfall e Pokémon TCG API em tempo real e mantém os dad
 Para Riftbound, copie `.env.example` para `.env` e preencha `EXPO_PUBLIC_RIFTBOUND_CATALOG_URL` somente depois que o proxy seguro do TCG Hub estiver implantado. A chave aprovada pela Riot deve permanecer exclusivamente no servidor; nunca use uma chave secreta em uma variável `EXPO_PUBLIC_*`.
 
 Preços em BRL provenientes dos catálogos internacionais são estimativas convertidas de USD e não representam ainda o mercado brasileiro.
+
+## Conta e sincronização
+
+1. Crie um projeto no Supabase.
+2. Abra o SQL Editor e execute `supabase/schema.sql` para criar a tabela e as políticas de segurança por usuário.
+3. Copie `.env.example` para `.env`.
+4. Preencha `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` com os valores públicos do projeto.
+5. Reinicie o Expo após alterar o `.env`.
+
+O aplicativo nunca deve receber a chave `service_role`. A tabela usa Row Level Security para que cada usuário leia e altere somente o próprio backup.
+
+Na primeira versão, a sessão fica apenas na memória e o usuário entra novamente depois de fechar completamente o aplicativo. Isso evita armazenar tokens em armazenamento não seguro; persistência de sessão poderá ser adicionada posteriormente com armazenamento criptografado nativo.
