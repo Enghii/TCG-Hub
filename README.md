@@ -62,4 +62,4 @@ Preços em BRL provenientes dos catálogos internacionais são estimativas conve
 
 O aplicativo nunca deve receber a chave `service_role`. A tabela usa Row Level Security para que cada usuário leia e altere somente o próprio backup.
 
-Na primeira versão, a sessão fica apenas na memória e o usuário entra novamente depois de fechar completamente o aplicativo. Isso evita armazenar tokens em armazenamento não seguro; persistência de sessão poderá ser adicionada posteriormente com armazenamento criptografado nativo.
+A sessão é restaurada e renovada automaticamente no dispositivo até o usuário escolher sair. Em uma versão de produção nativa, o token de renovação deverá ser migrado do AsyncStorage para armazenamento criptografado (por exemplo, `expo-secure-store`).
