@@ -22,6 +22,8 @@ Aplicativo mobile para centralizar coleção, descoberta de cartas, decks, merca
 - Catálogo online de Magic via Scryfall e Pokémon via Pokémon TCG API
 - Adaptador seguro preparado para o catálogo oficial de Riftbound via servidor do TCG Hub
 - Conta por e-mail, modo visitante, backup/restauração e sincronização automática via Supabase
+- Deck Builder com múltiplos decks, busca no catálogo, quantidades e sincronização no backup
+- Captura ou seleção de foto com revisão de até 10 cartas identificadas automaticamente
 - Estrutura preparada para Mercado, Deck Builder, Comunidade e Competitivo
 
 ## Executar
@@ -63,3 +65,9 @@ Preços em BRL provenientes dos catálogos internacionais são estimativas conve
 O aplicativo nunca deve receber a chave `service_role`. A tabela usa Row Level Security para que cada usuário leia e altere somente o próprio backup.
 
 A sessão é restaurada e renovada automaticamente no dispositivo até o usuário escolher sair. Em uma versão de produção nativa, o token de renovação deverá ser migrado do AsyncStorage para armazenamento criptografado (por exemplo, `expo-secure-store`).
+
+## Scanner de cartas
+
+O aplicativo inclui a Edge Function `supabase/functions/scan-cards`. Ela recebe a foto, limita o resultado a 10 cartas e usa visão computacional para sugerir nome, coleção e número. O usuário revisa as sugestões antes de adicioná-las ao deck.
+
+Para ativá-la, configure `OPENAI_API_KEY` como secret do Supabase, publique a função `scan-cards` com verificação JWT e reinicie o Expo. Por padrão, o aplicativo monta a URL da função a partir de `EXPO_PUBLIC_SUPABASE_URL`; `EXPO_PUBLIC_CARD_SCANNER_URL` permite usar outro servidor. A chave de IA nunca deve ser colocada em uma variável `EXPO_PUBLIC_*`.

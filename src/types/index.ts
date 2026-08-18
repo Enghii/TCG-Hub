@@ -6,3 +6,5 @@ export type Card = { id: string; externalId?: string; source?: CatalogSource; tc
 export type CardCondition = 'NM' | 'EX' | 'GD' | 'LP' | 'PL';
 export type CardLanguage = 'PT' | 'EN' | 'JP' | 'ES' | 'DE' | 'FR' | 'IT' | 'KR';
 export type CollectionItem = { id: string; cardId: string; cardSnapshot?: Card; quantity: number; condition: CardCondition; language: CardLanguage; foil: boolean; purchasePrice: number | null };
+export type DeckCard = { cardId: string; quantity: number; cardSnapshot?: Card };
+export type Deck = { id: string; tcgId: TcgId; name: string; cards: DeckCard[]; createdAt: string; updatedAt: string };

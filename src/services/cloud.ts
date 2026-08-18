@@ -1,7 +1,7 @@
-import { Card, CollectionItem, Language, Region, TcgId } from '@/src/types';
+import { Card, CollectionItem, Deck, Language, Region, TcgId } from '@/src/types';
 
 export type CloudSession = { accessToken: string; refreshToken: string; expiresAt: number; user: { id: string; email: string } };
-export type BackupPayload = { selectedTcg: TcgId | null; language: Language; region: Region; collection: CollectionItem[]; wishlist: string[]; savedCards: Card[]; schemaVersion: 1 };
+export type BackupPayload = { selectedTcg: TcgId | null; language: Language; region: Region; collection: CollectionItem[]; wishlist: string[]; savedCards: Card[]; decks: Deck[]; schemaVersion: 2 };
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, ''); const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 export const isCloudConfigured = Boolean(url && anonKey);
 
