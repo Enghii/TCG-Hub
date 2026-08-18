@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pill, PrimaryButton } from '@/src/components/ui';
 import { getCachedCard } from '@/src/services/catalog';
@@ -17,7 +17,14 @@ export default function CollectionEntryScreen() {
   const [quantity, setQuantity] = useState(String(existing?.quantity ?? 1)); const [condition, setCondition] = useState<CardCondition>(existing?.condition ?? 'NM'); const [cardLanguage, setCardLanguage] = useState<CardLanguage>(existing?.language ?? 'EN'); const [foil, setFoil] = useState(existing?.foil ?? false); const [purchasePrice, setPurchasePrice] = useState(existing?.purchasePrice == null ? '' : String(existing.purchasePrice));
   if (!card) return null;
   const save = () => { const parsedQuantity = Math.max(1, Math.floor(Number(quantity) || 1)); const parsedPrice = purchasePrice.trim() === '' ? null : Math.max(0, Number(purchasePrice.replace(',', '.')) || 0); const draft = { cardId: card.id, cardSnapshot: card, quantity: parsedQuantity, condition, language: cardLanguage, foil, purchasePrice: parsedPrice }; if (existing) updateCollectionItem(existing.id, draft); else addCollectionItem(draft); router.back(); };
-  const remove = () => Alert.alert('Remover exemplar?', 'Esta ação removerá este registro da coleção.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => { if (existing) removeCollectionItem(existing.id); router.back(); } }]);
+  const confirmRemoval = () => { if (!existing) return; removeCollectionItem(existing.id); router.back(); };
+  const remove = () => {
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm('Remover este exemplar da coleção?')) confirmRemoval();
+      return;
+    }
+    Alert.alert('Remover exemplar?', 'Esta ação removerá este registro da coleção.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: confirmRemoval }]);
+  };
   return <SafeAreaView edges={['bottom']} style={styles.safe}><ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
     <View style={styles.cardHeader}><View style={[styles.thumb, { backgroundColor: card.imageColor }]}><Text style={styles.thumbText}>{card.name[0]}</Text></View><View style={{ flex: 1 }}><Text style={styles.title}>{card.name}</Text><Text style={styles.meta}>{card.set} · #{card.number}</Text></View></View>
     <Text style={styles.label}>Quantidade</Text><View style={styles.quantityRow}><Pressable style={styles.step} onPress={() => setQuantity(String(Math.max(1, Number(quantity) - 1)))}><Text style={styles.stepText}>−</Text></Pressable><TextInput value={quantity} onChangeText={setQuantity} keyboardType="number-pad" style={styles.quantityInput} /><Pressable style={styles.step} onPress={() => setQuantity(String((Number(quantity) || 0) + 1))}><Text style={styles.stepText}>+</Text></Pressable></View>
