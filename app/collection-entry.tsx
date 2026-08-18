@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pill, PrimaryButton } from '@/src/components/ui';
 import { getCachedCard } from '@/src/services/catalog';
 import { useAppStore } from '@/src/store/AppStore';
-import { colors, spacing } from '@/src/theme';
+import { colors, pressFeedback, spacing } from '@/src/theme';
 import { CardCondition, CardLanguage } from '@/src/types';
 
 const conditions: CardCondition[] = ['NM', 'EX', 'GD', 'LP', 'PL'];
@@ -27,7 +27,7 @@ export default function CollectionEntryScreen() {
   };
   return <SafeAreaView edges={['bottom']} style={styles.safe}><ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
     <View style={styles.cardHeader}><View style={[styles.thumb, { backgroundColor: card.imageColor }]}><Text style={styles.thumbText}>{card.name[0]}</Text></View><View style={{ flex: 1 }}><Text style={styles.title}>{card.name}</Text><Text style={styles.meta}>{card.set} · #{card.number}</Text></View></View>
-    <Text style={styles.label}>Quantidade</Text><View style={styles.quantityRow}><Pressable style={styles.step} onPress={() => setQuantity(String(Math.max(1, Number(quantity) - 1)))}><Text style={styles.stepText}>−</Text></Pressable><TextInput value={quantity} onChangeText={setQuantity} keyboardType="number-pad" style={styles.quantityInput} /><Pressable style={styles.step} onPress={() => setQuantity(String((Number(quantity) || 0) + 1))}><Text style={styles.stepText}>+</Text></Pressable></View>
+    <Text style={styles.label}>Quantidade</Text><View style={styles.quantityRow}><Pressable style={({ pressed }) => [styles.step, pressed && pressFeedback]} onPress={() => setQuantity(String(Math.max(1, Number(quantity) - 1)))}><Text style={styles.stepText}>−</Text></Pressable><TextInput value={quantity} onChangeText={setQuantity} keyboardType="number-pad" style={styles.quantityInput} /><Pressable style={({ pressed }) => [styles.step, pressed && pressFeedback]} onPress={() => setQuantity(String((Number(quantity) || 0) + 1))}><Text style={styles.stepText}>+</Text></Pressable></View>
     <Text style={styles.label}>Condição</Text><View style={styles.options}>{conditions.map((item) => <Pill key={item} label={item} active={condition === item} onPress={() => setCondition(item)} />)}</View><Text style={styles.hint}>NM: nova · EX: excelente · GD: boa · LP: pouco usada · PL: usada</Text>
     <Text style={styles.label}>Idioma da carta</Text><View style={styles.options}>{languages.map((item) => <Pill key={item} label={item} active={cardLanguage === item} onPress={() => setCardLanguage(item)} />)}</View>
     <Text style={styles.label}>Acabamento</Text><View style={styles.options}><Pill label="Normal" active={!foil} onPress={() => setFoil(false)} /><Pill label="Foil" active={foil} onPress={() => setFoil(true)} /></View>

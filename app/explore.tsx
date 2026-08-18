@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { CardTile } from '@/src/components/CardTile'; import { Pill, SearchInput } from '@/src/components/ui'; import { colors, spacing } from '@/src/theme';
+import { CardTile } from '@/src/components/CardTile'; import { Pill, SearchInput } from '@/src/components/ui'; import { colors, pressFeedback, spacing } from '@/src/theme';
 import { searchCatalog } from '@/src/services/catalog'; import { Card, TcgId } from '@/src/types';
 
 export default function ExploreScreen() {
@@ -12,7 +12,7 @@ export default function ExploreScreen() {
   const rarities = ['Todas', ...new Set(items.map((card) => card.rarity))]; const filtered = useMemo(() => items.filter((card) => rarity === 'Todas' || card.rarity === rarity), [items, rarity]);
   const submit = () => { setSubmittedQuery(query); load(query); };
   return <SafeAreaView edges={['bottom']} style={styles.safe}><ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-    <Text style={styles.title}>Explorar cartas</Text><View style={styles.searchRow}><SearchInput value={query} onChangeText={setQuery} onSubmitEditing={submit} returnKeyType="search" placeholder="Nome da carta..." style={styles.search} /><Pressable onPress={submit} style={styles.searchButton}><Text style={styles.searchButtonText}>Buscar</Text></Pressable></View>
+    <Text style={styles.title}>Explorar cartas</Text><View style={styles.searchRow}><SearchInput value={query} onChangeText={setQuery} onSubmitEditing={submit} returnKeyType="search" placeholder="Nome da carta..." style={styles.search} /><Pressable onPress={submit} style={({ pressed }) => [styles.searchButton, pressed && pressFeedback]}><Text style={styles.searchButtonText}>Buscar</Text></Pressable></View>
     {!!notice && <View style={styles.notice}><Text style={styles.noticeText}>{notice}</Text></View>}
     {loading ? <View style={styles.loading}><ActivityIndicator color={colors.primary} size="large" /><Text style={styles.loadingText}>Atualizando catálogo...</Text></View> : <><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>{rarities.map((item) => <Pill key={item} label={item} active={rarity === item} onPress={() => setRarity(item)} />)}</ScrollView><Text style={styles.count}>{filtered.length} resultado(s){submittedQuery ? ` para “${submittedQuery}”` : ''}</Text><View style={styles.grid}>{filtered.map((card) => <CardTile key={card.id} card={card} />)}</View>{filtered.length === 0 && <Text style={styles.empty}>Nenhuma carta encontrada. Tente outro nome.</Text>}</>}
   </ScrollView></SafeAreaView>;
