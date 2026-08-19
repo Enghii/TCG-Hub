@@ -58,9 +58,10 @@ Preços em BRL provenientes dos catálogos internacionais são estimativas conve
 
 1. Crie um projeto no Supabase.
 2. Abra o SQL Editor e execute `supabase/schema.sql` para criar a tabela e as políticas de segurança por usuário.
-3. Copie `.env.example` para `.env`.
-4. Preencha `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` com os valores públicos do projeto.
-5. Reinicie o Expo após alterar o `.env`.
+3. Execute também `supabase/username_profiles.sql` para ativar nomes de usuário únicos no cadastro e no perfil.
+4. Copie `.env.example` para `.env`.
+5. Preencha `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` com os valores públicos do projeto.
+6. Reinicie o Expo após alterar o `.env`.
 
 O aplicativo nunca deve receber a chave `service_role`. A tabela usa Row Level Security para que cada usuário leia e altere somente o próprio backup.
 
