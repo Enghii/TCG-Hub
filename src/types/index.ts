@@ -7,4 +7,5 @@ export type CardCondition = 'NM' | 'EX' | 'GD' | 'LP' | 'PL';
 export type CardLanguage = 'PT' | 'EN' | 'JP' | 'ES' | 'DE' | 'FR' | 'IT' | 'KR';
 export type CollectionItem = { id: string; cardId: string; cardSnapshot?: Card; quantity: number; condition: CardCondition; language: CardLanguage; foil: boolean; purchasePrice: number | null };
 export type DeckCard = { cardId: string; quantity: number; cardSnapshot?: Card };
-export type Deck = { id: string; tcgId: TcgId; name: string; cards: DeckCard[]; createdAt: string; updatedAt: string };
+export type DeckFormat = 'magic-standard' | 'magic-commander' | 'pokemon-standard' | 'riftbound-standard' | 'casual';
+export type Deck = { id: string; tcgId: TcgId; name: string; format: DeckFormat; cards: DeckCard[]; createdAt: string; updatedAt: string };
